@@ -1,0 +1,3 @@
+power_controller_serial_port: "/dev/cu.usbserial-0148A89B"
+lil_lite_serial_port: "/dev/cu.usbmodem01"
+station_server_port: "8080"

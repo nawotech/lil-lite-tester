@@ -276,11 +276,13 @@ def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     sleep(2)
     test.measurements.vbat_current_sleep = pwr_cntrl.get_vbat_mA()
 
-
+import yaml
 
 if __name__ == '__main__':
 
-    conf.load(station_server_port='8080')
+    f = open('tester_config.yaml')
+    config_dict = yaml.load(f)
+    conf.load_from_dict(config_dict)
 
     interface = mfg_inspector.MfgInspector()
     interface.set_converter(mfg_event_converter.mfg_event_from_test_record)
