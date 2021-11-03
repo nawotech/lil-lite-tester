@@ -281,7 +281,7 @@ import yaml
 if __name__ == '__main__':
 
     f = open('tester_config.yaml')
-    config_dict = yaml.load(f)
+    config_dict = yaml.load(f, 'r')
     conf.load_from_dict(config_dict)
 
     interface = mfg_inspector.MfgInspector()
