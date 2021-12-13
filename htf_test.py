@@ -290,7 +290,8 @@ def power_input_select(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
     htf.Measurement('vbat_current_on').with_units('mA').in_range(minimum=20),
-    htf.Measurement('vbat_current_wake').with_units('mA').in_range(minimum=20),
+    htf.Measurement('vbat_current_wake').with_units(
+        'mA').in_range(minimum=-130, maximum=-90),
     htf.Measurement('vbat_current_sleep').with_units(
         'mA').in_range(maximum=0.2)
 )
@@ -302,7 +303,7 @@ def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     sleep(2)
     test.measurements.vbat_current_sleep = pwr_cntrl.get_vbat_mA()
     pwr_cntrl.set_vbus_enable(1)
-    sleep(1)
+    sleep(2)
     test.measurements.vbat_current_wake = pwr_cntrl.get_vbat_mA()
 
 
