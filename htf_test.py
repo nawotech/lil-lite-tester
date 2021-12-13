@@ -1,3 +1,4 @@
+import yaml
 import openhtf as htf
 from time import sleep
 
@@ -54,7 +55,7 @@ def battery_monitor(test, lite: LilLitePlug):
     lite.set_switched_rail(1)
     sleep(0.1)
     test.measurements.monitor_vbat_voltage = lite.get_vbat_v()
-    
+
 
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
@@ -75,8 +76,10 @@ def button(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
-    htf.Measurement('vbat_current_rail_on').with_units('mA').in_range(minimum=50, maximum=100),
-    htf.Measurement('vbat_current_rail_off').with_units('mA').in_range(minimum=25, maximum=35)
+    htf.Measurement('vbat_current_rail_on').with_units(
+        'mA').in_range(minimum=50, maximum=100),
+    htf.Measurement('vbat_current_rail_off').with_units(
+        'mA').in_range(minimum=25, maximum=35)
 )
 def switched_rail(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     lite.set_switched_rail(1)
@@ -93,18 +96,30 @@ def switched_rail(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 # define limits for color sensor with each color LED on
 @htf.measures(
-    *(htf.Measurement('led_{}_red_read_red'.format(n)).in_range(minimum=160) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_red_read_green'.format(n)).in_range(maximum=75) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_red_read_blue'.format(n)).in_range(maximum=75) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_green_read_red'.format(n)).in_range(maximum=50) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_green_read_green'.format(n)).in_range(minimum=140) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_green_read_blue'.format(n)).in_range(maximum=100) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_blue_read_red'.format(n)).in_range(maximum=50) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_blue_read_green'.format(n)).in_range(maximum=100) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_blue_read_blue'.format(n)).in_range(minimum=140) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_blank_read_red'.format(n)).in_range(maximum=25) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_blank_read_green'.format(n)).in_range(maximum=25) for n in range(0, 6)),
-    *(htf.Measurement('led_{}_blank_read_blue'.format(n)).in_range(maximum=25) for n in range(0, 6)),
+    *(htf.Measurement('led_{}_red_read_red'.format(n)).in_range(minimum=160)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_red_read_green'.format(n)).in_range(maximum=75)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_red_read_blue'.format(n)).in_range(maximum=75)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_green_read_red'.format(n)).in_range(maximum=50)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_green_read_green'.format(n)).in_range(minimum=140)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_green_read_blue'.format(n)).in_range(maximum=100)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_blue_read_red'.format(n)).in_range(maximum=50)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_blue_read_green'.format(n)).in_range(maximum=100)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_blue_read_blue'.format(n)).in_range(minimum=140)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_blank_read_red'.format(n)).in_range(maximum=25)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_blank_read_green'.format(n)).in_range(maximum=25)
+      for n in range(0, 6)),
+    *(htf.Measurement('led_{}_blank_read_blue'.format(n)).in_range(maximum=25)
+      for n in range(0, 6)),
 )
 def led(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     lite.set_switched_rail(1)
@@ -155,7 +170,8 @@ def accel_int_pin(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
-    *(htf.Measurement('accel_{}_change_self_test'.format(axis)).with_units('g').in_range(minimum=0.45, maximum=0.55) for axis in ['x', 'y', 'z']),
+    *(htf.Measurement('accel_{}_change_self_test'.format(axis)
+                      ).with_units('g').in_range(minimum=0.40, maximum=0.60) for axis in ['x', 'y', 'z']),
     *(htf.Measurement('accel_{}_change_no_self_test'.format(axis)).with_units('g').in_range(maximum=0.1) for axis in ['x', 'y', 'z'])
 )
 def accel_sensor(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
@@ -183,8 +199,10 @@ def accel_sensor(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
-    htf.Measurement('vbus_current').with_units('mA').in_range(minimum=90, maximum=160),
-    htf.Measurement('vbat_current').with_units('mA').in_range(minimum=-130, maximum=-90)
+    htf.Measurement('vbus_current').with_units(
+        'mA').in_range(minimum=90, maximum=160),
+    htf.Measurement('vbat_current').with_units(
+        'mA').in_range(minimum=-130, maximum=-90)
 )
 def charger_current(test, pwr_cntrl: PowerControllerPlug, lite: LilLitePlug):
     lite.set_switched_rail(0)
@@ -200,7 +218,7 @@ def charger_current(test, pwr_cntrl: PowerControllerPlug, lite: LilLitePlug):
     htf.Measurement('vbus_connected').equals(1),
     htf.Measurement('vbus_disconnected').equals(0)
 )
-def vbus_monitor(test, pwr_cntrl:PowerControllerPlug, lite: LilLitePlug):
+def vbus_monitor(test, pwr_cntrl: PowerControllerPlug, lite: LilLitePlug):
     test.measurements.vbus_connected = lite.get_vbus()
     pwr_cntrl.set_vbus_enable(0)
     sleep(1)
@@ -224,8 +242,10 @@ def charger_stat_pin(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
-    htf.Measurement('monitor_charging').with_units('mA').in_range(minimum=90, maximum=110),
-    htf.Measurement('monitor_not_charging').with_units('mA').in_range(maximum=5)
+    htf.Measurement('monitor_charging').with_units(
+        'mA').in_range(minimum=90, maximum=110),
+    htf.Measurement('monitor_not_charging').with_units(
+        'mA').in_range(maximum=5)
 )
 def charger_i_monitor(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     pwr_cntrl.set_vbus_enable(1)
@@ -239,10 +259,14 @@ def charger_i_monitor(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
-    htf.Measurement('vbus_current_vbus_selected').with_units('mA').in_range(minimum=210, maximum=260),
-    htf.Measurement('vbat_current_vbus_selected').with_units('mA').in_range(minimum=-130, maximum=-90),
-    htf.Measurement('vbus_current_vbat_selected').with_units('mA').in_range(maximum=2),
-    htf.Measurement('vbat_current_vbat_selected').with_units('mA').in_range(minimum=110, maximum=130)
+    htf.Measurement('vbus_current_vbus_selected').with_units(
+        'mA').in_range(minimum=190, maximum=260),
+    htf.Measurement('vbat_current_vbus_selected').with_units(
+        'mA').in_range(minimum=-130, maximum=-90),
+    htf.Measurement('vbus_current_vbat_selected').with_units(
+        'mA').in_range(maximum=2),
+    htf.Measurement('vbat_current_vbat_selected').with_units(
+        'mA').in_range(minimum=90, maximum=130)
 )
 def power_input_select(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     pwr_cntrl.set_vbus_enable(0)
@@ -266,7 +290,8 @@ def power_input_select(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
     htf.Measurement('vbat_current_on').with_units('mA').in_range(minimum=20),
-    htf.Measurement('vbat_current_sleep').with_units('mA').in_range(maximum=0.2)
+    htf.Measurement('vbat_current_sleep').with_units(
+        'mA').in_range(maximum=0.2)
 )
 def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     pwr_cntrl.set_vbus_enable(0)
@@ -276,7 +301,6 @@ def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     sleep(2)
     test.measurements.vbat_current_sleep = pwr_cntrl.get_vbat_mA()
 
-import yaml
 
 if __name__ == '__main__':
 
@@ -310,8 +334,10 @@ if __name__ == '__main__':
                 power_sleep)
 
             test.add_output_callbacks(console_summary.ConsoleSummary())
-            test.add_output_callbacks(json_factory.OutputToJSON('./test_runs/{dut_id}.json', indent=2))
-            test.add_output_callbacks(interface.save_to_disk('./test_history/mfg_event_{dut_id}_{start_time_millis}.pb'))
+            test.add_output_callbacks(json_factory.OutputToJSON(
+                './test_runs/{dut_id}.json', indent=2))
+            test.add_output_callbacks(interface.save_to_disk(
+                './test_history/mfg_event_{dut_id}_{start_time_millis}.pb'))
 
             test.add_output_callbacks(server.publish_final_state)
 
