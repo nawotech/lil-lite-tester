@@ -290,6 +290,7 @@ def power_input_select(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
     htf.Measurement('vbat_current_on').with_units('mA').in_range(minimum=20),
+    htf.Measurement('vbat_current_wake').with_units('mA').in_range(minimum=20),
     htf.Measurement('vbat_current_sleep').with_units(
         'mA').in_range(maximum=0.2)
 )
@@ -300,6 +301,14 @@ def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     lite.sleep()
     sleep(2)
     test.measurements.vbat_current_sleep = pwr_cntrl.get_vbat_mA()
+    pwr_cntrl.set_vbus_enable(1)
+    sleep(1)
+    test.measurements.vbat_current_wake = pwr_cntrl.get_vbat_mA()
+
+
+@htf.plug(lite=LilLitePlug)
+def flash_app_firmware(test, lite: LilLitePlug):
+    lite.flash_app()
 
 
 if __name__ == '__main__':
@@ -331,7 +340,8 @@ if __name__ == '__main__':
                 charger_stat_pin,
                 charger_i_monitor,
                 power_input_select,
-                power_sleep)
+                power_sleep,
+                flash_app_firmware)
 
             test.add_output_callbacks(console_summary.ConsoleSummary())
             test.add_output_callbacks(json_factory.OutputToJSON(
