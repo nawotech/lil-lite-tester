@@ -45,7 +45,10 @@ def setup_usb_power(test, pwr_cntrl: PowerControllerPlug):
 
 
 @htf.plug(lite=LilLitePlug)
-def flash_test_firmware(test, lite: LilLitePlug):
+@htf.plug(pwr_cntrl=PowerControllerPlug)
+def flash_test_firmware(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
+    pwr_cntrl.reset_into_bootloader()
+    sleep(3)
     lite.flash_test_app()
 
 
@@ -302,8 +305,10 @@ def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     lite.sleep()
     sleep(2)
     test.measurements.vbat_current_sleep = pwr_cntrl.get_vbat_mA()
+    pwr_cntrl.set_vbat(0.0)
+    sleep(1)
     pwr_cntrl.set_vbus_enable(1)
-    sleep(2)
+    sleep(3)
     test.measurements.vbat_current_wake = pwr_cntrl.get_vbat_mA()
 
 

@@ -5,7 +5,7 @@ import json
 class LilLite():
     def __init__(self, serial_port: str):
         self.serial_port = serial_port
-    
+
     def connect(self):
         self.ser = Serial(self.serial_port, 115200, timeout=0.5)
 

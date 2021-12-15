@@ -8,6 +8,7 @@ conf.declare(
     default_value='/dev/cu.usbserial-0148A89B',
     description='power controller serial port string')
 
+
 class PowerControllerPlug(base_plugs.BasePlug):
 
     @conf.inject_positional_args
@@ -22,7 +23,7 @@ class PowerControllerPlug(base_plugs.BasePlug):
 
     def set_vbus_enable(self, on: bool):
         self.pwr_cntrl.set_vbus_enable(on)
-           
+
     def get_vbus_v(self):
         return self.pwr_cntrl.get_vbus_v()
 
@@ -37,3 +38,9 @@ class PowerControllerPlug(base_plugs.BasePlug):
 
     def set_servo_position(self, degrees: int):
         self.pwr_cntrl.set_servo_position(degrees)
+
+    def reset(self):
+        self.pwr_cntrl.reset()
+
+    def reset_into_bootloader(self):
+        self.pwr_cntrl.reset_into_bootloader

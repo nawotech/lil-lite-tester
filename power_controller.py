@@ -2,6 +2,7 @@ from serial import Serial
 import json
 from time import sleep
 
+
 class PowerController():
     def __init__(self, serial_port: str):
         # open serial port for load and set receieve timeout to 0.5 sec
@@ -52,7 +53,6 @@ class PowerController():
             max_v = 1.0
         # wait until VBUS reaches target value
 
-
     def get_vbat_mA(self):
         self.get_new_reading()
         return self.vals["vbat_mA"]
@@ -71,3 +71,9 @@ class PowerController():
     def set_servo_position(self, degrees: int):
         command = "S {}".format(degrees)
         self.write_command(command)
+
+    def reset(self):
+        self.write_command("Y")
+
+    def reset_into_bootloader(self):
+        self.write_command("B")

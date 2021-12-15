@@ -11,6 +11,8 @@
 #define PIN_VBUS_EN 22
 #define PIN_DAC_VBAT 26
 #define PIN_SERVO 2
+#define PIN_RESET 12
+#define PIN_BOOT0 13
 
 Adafruit_INA219 Vbat;
 Adafruit_INA219 Vbus(0x41);
@@ -35,10 +37,32 @@ void set_vbus_enable(bool on)
     digitalWrite(PIN_VBUS_EN, on);
 }
 
+void reset_into_bootloader()
+{
+    digitalWrite(PIN_BOOT0, 0);
+    digitalWrite(PIN_RESET, 0);
+    delay(10);
+    digitalWrite(PIN_BOOT0, 0);
+    digitalWrite(PIN_RESET, 1);
+    delay(100);
+    digitalWrite(PIN_BOOT0, 1);
+}
+
+void reset()
+{
+    digitalWrite(PIN_RESET, 0);
+    delay(10);
+    digitalWrite(PIN_RESET, 1);
+}
+
 void setup()
 {
     pinMode(PIN_VBUS_EN, OUTPUT);
     pinMode(PIN_SERVO, OUTPUT);
+    pinMode(PIN_RESET, OUTPUT_OPEN_DRAIN);
+    pinMode(PIN_BOOT0, OUTPUT_OPEN_DRAIN);
+    digitalWrite(PIN_RESET, 1);
+    digitalWrite(PIN_BOOT0, 1);
     Wire.setPins(PIN_SDA, PIN_SCL);
     Serial.begin(115200);
     Vbat.begin();
@@ -51,9 +75,9 @@ void setup()
     set_vbus_enable(1);
     Color.setInterrupt(1); // turn off white LED
     ESP32PWM::allocateTimer(0);
-	ESP32PWM::allocateTimer(1);
-	ESP32PWM::allocateTimer(2);
-	ESP32PWM::allocateTimer(3);
+    ESP32PWM::allocateTimer(1);
+    ESP32PWM::allocateTimer(2);
+    ESP32PWM::allocateTimer(3);
     ButtonServo.setPeriodHertz(50);
     ButtonServo.attach(PIN_SERVO, 600, 2500);
     ButtonServo.write(90);
@@ -63,7 +87,7 @@ int servopos = 90;
 
 void move_servo(bool forward)
 {
-    if(forward)
+    if (forward)
     {
         servopos++;
     }
@@ -71,11 +95,11 @@ void move_servo(bool forward)
     {
         servopos = servopos - 1;
     }
-    if(servopos > 180)
+    if (servopos > 180)
     {
         servopos = 180;
     }
-    if(servopos < 0)
+    if (servopos < 0)
     {
         servopos = 0;
     }
@@ -157,6 +181,14 @@ void loop()
         else if (byte == 'A')
         {
             autosend = true;
+        }
+        else if (byte == 'Y')
+        {
+            reset();
+        }
+        else if (byte == 'B')
+        {
+            reset_into_bootloader();
         }
     }
 
