@@ -25,11 +25,9 @@ class LilLitePlug(base_plugs.BasePlug):
 
     def flash_test_app(self):
         flash_lil_lite.flash_test_firmware(self.lite.serial_port)
-        sleep(2)  # wait for light to restart
 
     def flash_app(self):
         flash_lil_lite.flash_firmware(self.lite.serial_port)
-        sleep(2)
 
     def clear_all_leds(self):
         self.lite.clear_all_leds()

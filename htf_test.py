@@ -15,14 +15,6 @@ from openhtf.plugs import user_input
 from power_controller_plug import PowerControllerPlug
 from lil_lite_plug import LilLitePlug
 
-from flash_lil_lite import flash_test_firmware
-
-
-@htf.plug(lite=LilLitePlug)
-def setup_lite(test, lite: LilLitePlug):
-    lite.connect()
-    lite.clear_all_leds()
-
 
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(htf.Measurement('vbat_voltage').with_units('V').in_range(minimum=3.6, maximum=3.75))
@@ -37,20 +29,29 @@ def setup_battery_power(test, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(htf.Measurement('vbat_voltage').with_units('V').in_range(minimum=3.6, maximum=3.75))
 @htf.measures(htf.Measurement('vbus_voltage').with_units('V').in_range(minimum=4.2, maximum=5.2))
+@htf.measures(htf.Measurement('vbat_current').with_units('mA').in_range(maximum=-10))
 def setup_usb_power(test, pwr_cntrl: PowerControllerPlug):
     pwr_cntrl.set_vbat(3.7)
     pwr_cntrl.set_vbus_enable(1)
     test.measurements.vbat_voltage = pwr_cntrl.get_vbat_v()
     test.measurements.vbus_voltage = pwr_cntrl.get_vbus_v()
+    test.measurements.vbat_current = pwr_cntrl.get_vbat_mA()
 
 
 @htf.plug(lite=LilLitePlug)
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 def flash_test_firmware(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     pwr_cntrl.reset_into_bootloader()
-    sleep(3)
     lite.flash_test_app()
+
+
+@htf.plug(lite=LilLitePlug)
+@htf.plug(pwr_cntrl=PowerControllerPlug)
+def setup_lite(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     pwr_cntrl.reset()
+    sleep(3)
+    lite.connect()
+    lite.clear_all_leds()
 
 
 @htf.plug(lite=LilLitePlug)
@@ -175,7 +176,7 @@ def accel_int_pin(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
     *(htf.Measurement('accel_{}_change_self_test'.format(axis)
-                      ).with_units('g').in_range(minimum=0.40, maximum=0.60) for axis in ['x', 'y', 'z']),
+                      ).with_units('g').in_range(minimum=0.30, maximum=0.70) for axis in ['x', 'y', 'z']),
     *(htf.Measurement('accel_{}_change_no_self_test'.format(axis)).with_units('g').in_range(maximum=0.1) for axis in ['x', 'y', 'z'])
 )
 def accel_sensor(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
@@ -294,8 +295,6 @@ def power_input_select(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
 @htf.plug(pwr_cntrl=PowerControllerPlug)
 @htf.measures(
     htf.Measurement('vbat_current_on').with_units('mA').in_range(minimum=20),
-    htf.Measurement('vbat_current_wake').with_units(
-        'mA').in_range(minimum=-130, maximum=-90),
     htf.Measurement('vbat_current_sleep').with_units(
         'mA').in_range(maximum=0.2)
 )
@@ -306,15 +305,11 @@ def power_sleep(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug):
     lite.sleep()
     sleep(2)
     test.measurements.vbat_current_sleep = pwr_cntrl.get_vbat_mA()
-    pwr_cntrl.set_vbat(0.0)
-    sleep(1)
-    pwr_cntrl.set_vbus_enable(1)
-    sleep(3)
-    test.measurements.vbat_current_wake = pwr_cntrl.get_vbat_mA()
 
 
 @htf.plug(lite=LilLitePlug)
 def flash_app_firmware(test, lite: LilLitePlug):
+    sleep(6)
     lite.flash_app()
 
 
@@ -334,7 +329,6 @@ if __name__ == '__main__':
                 setup_usb_power,
                 flash_test_firmware,
                 setup_lite,
-                setup_battery_power,
                 vbus_monitor,
                 battery_monitor,
                 button,
@@ -349,7 +343,9 @@ if __name__ == '__main__':
                 charger_i_monitor,
                 power_input_select,
                 power_sleep,
-                flash_app_firmware)
+                setup_usb_power,
+                flash_app_firmware
+            )
 
             test.add_output_callbacks(console_summary.ConsoleSummary())
             test.add_output_callbacks(json_factory.OutputToJSON(

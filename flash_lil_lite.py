@@ -24,11 +24,13 @@ def flash(serial_port: str, app_path: str):
         esptool.main(command)
     except SystemExit:
         pass
-        return
-    except (serial.serialutil.SerialException):
+        print("SystemExit")
+    except:
         pass
         sleep(1)
-        esptool.main(command)
+        flash(serial_port, app_path)
+    finally:
+        print("done")
 
 
 def flash_test_firmware(lite_port):

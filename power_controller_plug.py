@@ -43,4 +43,4 @@ class PowerControllerPlug(base_plugs.BasePlug):
         self.pwr_cntrl.reset()
 
     def reset_into_bootloader(self):
-        self.pwr_cntrl.reset_into_bootloader
+        self.pwr_cntrl.reset_into_bootloader()
