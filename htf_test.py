@@ -50,6 +50,7 @@ def flash_test_firmware(test, lite: LilLitePlug, pwr_cntrl: PowerControllerPlug)
     pwr_cntrl.reset_into_bootloader()
     sleep(3)
     lite.flash_test_app()
+    pwr_cntrl.reset()
 
 
 @htf.plug(lite=LilLitePlug)
@@ -333,6 +334,7 @@ if __name__ == '__main__':
                 setup_usb_power,
                 flash_test_firmware,
                 setup_lite,
+                setup_battery_power,
                 vbus_monitor,
                 battery_monitor,
                 button,
